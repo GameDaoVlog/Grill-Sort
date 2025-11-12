@@ -93,11 +93,13 @@ public class DropDragCtrl : MonoBehaviour
             {
                 _imgFoodDrag.transform.DOMove(_cacheFood.transform.position, 0.15f).OnComplete(() =>
                 {
+                    _currentFood?.OnCheckPrepareTray();
                     _imgFoodDrag.gameObject.SetActive(false);
                     _cacheFood.OnSetSlot(_currentFood.GetSpriteFood);
                     _cacheFood.OnActiveFood(true);
                     _cacheFood.OnCheckMerge();
                     _cacheFood = null;
+                    _currentFood = null;
                 });
             }
             else // xu ly tro ve vi tri ban dau

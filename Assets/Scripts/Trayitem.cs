@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Trayitem : MonoBehaviour
 {
     private List<Image> _foodList;
+    public List<Image> FoodList => _foodList;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
