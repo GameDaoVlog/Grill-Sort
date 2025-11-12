@@ -115,6 +115,7 @@ public class GrillStation : MonoBehaviour
                 }
 
                 this.OnPrepareTray();
+                GameManagers.Instance?.OnMinusFood();
             }
         }
     }

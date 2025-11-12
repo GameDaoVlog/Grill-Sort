@@ -4,6 +4,9 @@ using System.Linq;
 
 public class GameManagers : MonoBehaviour
 {
+    private static GameManagers _instance;
+    public static GameManagers Instance => _instance;
+
     [SerializeField] private int _totalFood; // tong so loai thuc an
     [SerializeField] private int _totalGrill; // tong so bep
     [SerializeField] private Transform _gridGrill;
@@ -19,6 +22,7 @@ public class GameManagers : MonoBehaviour
         _listGrills = Utils.GetListInChild<GrillStation>(_gridGrill);
         Sprite[] loadedSprite = Resources.LoadAll<Sprite>("Items");
         _totalSpriteFood = loadedSprite.ToList();
+        _instance = this;
     }
 
     void Start()
@@ -90,5 +94,14 @@ public class GameManagers : MonoBehaviour
         }
 
         return result;
+    }
+
+    public void OnMinusFood()
+    {
+        --_totalFood;
+        if(_totalFood <= 0)
+        {
+            Debug.Log("Game Completeeeeee");
+        }
     }
 }

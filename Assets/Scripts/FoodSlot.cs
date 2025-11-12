@@ -60,6 +60,7 @@ public class FoodSlot : MonoBehaviour
 
         _imgFood.transform.DOLocalMove(Vector3.zero, 0.2f);
         _imgFood.transform.DOScale(Vector3.one, 0.2f);
+        _imgFood.transform.DORotate(Vector3.zero, 0.2f);
     }
 
     public void OnCheckPrepareTray()
