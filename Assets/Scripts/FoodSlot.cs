@@ -28,6 +28,7 @@ public class FoodSlot : MonoBehaviour
     public void OnActiveFood(bool active)
     {
         _imgFood.gameObject.SetActive(active);
+        _imgFood.color = _normalColor;
     }
 
     public void OnFadeFood()
@@ -41,6 +42,11 @@ public class FoodSlot : MonoBehaviour
         this.OnActiveFood(false);
         _imgFood.color = _normalColor;
 
+    }
+
+    public void OnCheckMerge()
+    {
+        _grillCtrl?.OnCheckMerge();
     }
 
     public FoodSlot GetSlotNull => _grillCtrl.GetSlotNull();

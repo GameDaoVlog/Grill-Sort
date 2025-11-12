@@ -84,4 +84,33 @@ public class GrillStation : MonoBehaviour
 
         return null;
     }
+
+    public void OnCheckMerge()
+    {
+        if(this.GetSlotNull() == null) // kiem tra xem so luong slot du 3 item chua, neu chua du thi no == null
+        {
+            if (this.CanMerge())
+            {
+                Debug.Log("Complete Grill");
+
+                for (int i = 0; i < _totalSlot.Count; i++)
+                {
+                    _totalSlot[i].OnActiveFood(false);
+                }
+            }
+        }
+    }
+
+    private bool CanMerge()
+    {
+        string name = _totalSlot[0].GetSpriteFood.name;
+
+        for (int i = 1; i < _totalSlot.Count; i++)
+        {
+            if ( _totalSlot[i].GetSpriteFood.name != name)
+                return false;
+        }
+
+        return true;
+    }
 }
