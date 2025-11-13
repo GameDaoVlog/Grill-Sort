@@ -5,10 +5,12 @@ using DG.Tweening;
 public class DropDragCtrl : MonoBehaviour
 {
     [SerializeField] private Image _imgFoodDrag;
+    [SerializeField] private float _timeCheckSuggest;
 
     private FoodSlot _currentFood, _cacheFood;
     private bool _hasDrag;
     private Vector3 _offset;
+    private float _countTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,6 +21,14 @@ public class DropDragCtrl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        _countTime += Time.deltaTime;
+
+        if(_countTime >= _timeCheckSuggest)
+        {
+            _countTime = 0f;
+            GameManagers.Instance?.OnCheckAndShake();
+        }
+
         if (Input.GetMouseButtonDown(0)) // check khi click chuot
         {
             _currentFood = Utils.GetRayCastUI<FoodSlot>(Input.mousePosition); // check o vi tri click chuot xem co Ui gan class FoodSlot
@@ -47,6 +57,7 @@ public class DropDragCtrl : MonoBehaviour
             Vector3 foodPos = mouseWordPos + _offset;
             foodPos.z = 0f;
             _imgFoodDrag.transform.position = foodPos;
+            _countTime = 0f;
 
             FoodSlot slot = Utils.GetRayCastUI<FoodSlot>(Input.mousePosition);
             if(slot != null  )

@@ -7,6 +7,7 @@ public class GameManagers : MonoBehaviour
     private static GameManagers _instance;
     public static GameManagers Instance => _instance;
 
+    [SerializeField] private int _allFood;
     [SerializeField] private int _totalFood; // tong so loai thuc an
     [SerializeField] private int _totalGrill; // tong so bep
     [SerializeField] private Transform _gridGrill;
@@ -35,20 +36,15 @@ public class GameManagers : MonoBehaviour
         List<Sprite> takeFood = _totalSpriteFood.OrderBy(x => Random.value).Take(_totalFood).ToList();//
         List<Sprite> useFood = new List<Sprite>();
 
-        for(int i = 0; i < takeFood.Count; i++)
+        for (int i = 0; i < _allFood; i++)
         {
+            int n = i % takeFood.Count;
             for (int j = 0; j < 3; j++)
-                useFood.Add(takeFood[i]);
+                useFood.Add(takeFood[n]);
         }
 
-        // random, trao vi tri cua cac item
-        for(int i = 0; i < useFood.Count; i++)
-        {
-            int rand = Random.Range(i, useFood.Count);
-            (useFood[i], useFood[rand]) = (useFood[rand], useFood[i]); // ham nay laf doi vi tri i hien taij cua vong lap va vi tri random
-        }
 
-        _avgTray = Random.Range(1.5f, 2f);
+        _avgTray = Random.Range(1.4f, 2f);
         int totalTray = Mathf.RoundToInt(useFood.Count / _avgTray);// tinh tong so dia
 
         List<int> trayPerGrill = this.DistributeEvelyn(_totalGrill, totalTray);
@@ -98,10 +94,48 @@ public class GameManagers : MonoBehaviour
 
     public void OnMinusFood()
     {
-        --_totalFood;
-        if(_totalFood <= 0)
+        --_allFood;
+        if(_allFood <= 0)
         {
             Debug.Log("Game Completeeeeee");
         }
+    }
+
+    public void OnCheckAndShake()
+    {
+        Dictionary<string, List<FoodSlot>> groups = new Dictionary<string, List<FoodSlot>>();
+
+        foreach(var grill in _listGrills)
+        {
+            if (grill.gameObject.activeInHierarchy)
+            {
+                for(int i = 0; i < grill.TotalSlot.Count; i++)
+                {
+                    FoodSlot slot = grill.TotalSlot[i];
+                    if (slot.HasFood)
+                    {
+                        string name = slot.GetSpriteFood.name;
+                        if (!groups.ContainsKey(name))
+                            groups.Add(name, new List<FoodSlot>());
+
+                        groups[name].Add(slot);
+                    }
+                }
+            }
+        }
+
+        foreach(var kvp in groups)
+        {
+            if(kvp.Value.Count >= 3)
+            {
+                for(int i = 0; i < 3; i++)
+                {
+                    kvp.Value[i].DoShake();
+                }
+
+                return;
+            }
+        }
+        
     }
 }

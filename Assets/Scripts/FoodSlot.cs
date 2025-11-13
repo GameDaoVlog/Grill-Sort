@@ -19,6 +19,7 @@ public class FoodSlot : MonoBehaviour
         _grillCtrl = this.transform.parent.parent.GetComponent<GrillStation>();
     }
 
+
     public void OnSetSlot(Sprite spr)
     {
         _imgFood.gameObject.SetActive(true);
@@ -58,14 +59,28 @@ public class FoodSlot : MonoBehaviour
         _imgFood.transform.localScale = img.transform.localScale;
         _imgFood.transform.localEulerAngles = img.transform.localEulerAngles;
 
-        _imgFood.transform.DOLocalMove(Vector3.zero, 0.2f);
-        _imgFood.transform.DOScale(Vector3.one, 0.2f);
-        _imgFood.transform.DORotate(Vector3.zero, 0.2f);
+        _imgFood.transform.DOLocalMove(Vector3.zero, 0.6f).SetEase(Ease.OutBack);
+        _imgFood.transform.DOScale(Vector3.one, 0.6f);
+        _imgFood.transform.DORotate(Vector3.zero, 0.6f);
     }
 
     public void OnCheckPrepareTray()
     {
         _grillCtrl?.OnCheckPrepareTray();
+    }
+
+    public void OnFadeOut()
+    {
+        _imgFood.transform.DOLocalMoveY(100f, 0.6f).OnComplete(() => {
+            this.OnActiveFood(false);
+            _imgFood.transform.localPosition = Vector3.zero;
+            });
+        _imgFood.DOColor(new Color(1f,1f,1f,0f), 0.6f);
+    }
+
+    public void DoShake()
+    {
+        _imgFood.transform.DOShakePosition(0.5f, 10f, 10, 180f);
     }
 
     public FoodSlot GetSlotNull => _grillCtrl.GetSlotNull();

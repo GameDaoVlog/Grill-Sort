@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
-
+using System.Collections;
+using DG.Tweening;
 
 public class GrillStation : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class GrillStation : MonoBehaviour
     private List<FoodSlot> _totalSlot;
 
     private Stack<Trayitem> _stackTrays = new Stack<Trayitem>();
+
+    public List<FoodSlot> TotalSlot => _totalSlot;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
@@ -28,22 +31,25 @@ public class GrillStation : MonoBehaviour
         List<Sprite> list = listFood;
         List<Sprite> listSlot = Utils.TakeAndRemoveRandom<Sprite>(list, foodCount);
 
-        for(int i = 0; i < listSlot.Count; i++)
+        for (int i = 0; i < listSlot.Count; i++)
         {
             FoodSlot slot = this.RandomSlot();
             slot.OnSetSlot(listSlot[i]);
         }
 
-    
+
         // xu ly dia
         List<List<Sprite>> remainFood = new List<List<Sprite>>();
 
-        for(int i = 0; i < totalTray - 1; i++)
+        for (int i = 0; i < totalTray - 1; i++)
         {
-            remainFood.Add(new List<Sprite>());
-            int n = Random.Range(0, listFood.Count);
-            remainFood[i].Add(listFood[n]);
-            listFood.RemoveAt(n);
+            if (listFood.Count > 0)
+            {
+                remainFood.Add(new List<Sprite>());
+                int n = Random.Range(0, listFood.Count);
+                remainFood[i].Add(listFood[n]);
+                listFood.RemoveAt(n);
+            }
         }
 
         while (listFood.Count > 0)
@@ -59,7 +65,7 @@ public class GrillStation : MonoBehaviour
 
         for (int i = 0; i < _totalTrays.Count; i++)
         {
-            bool active = i < remainFood.Count;
+            bool active = i < remainFood.Count && remainFood[i].Count > 0;
             _totalTrays[i].gameObject.SetActive(active);
 
             if (active)
@@ -81,13 +87,29 @@ public class GrillStation : MonoBehaviour
 
     public FoodSlot GetSlotNull()
     {
-        for(int i = 0; i < _totalSlot.Count; i++)
+        FoodSlot tmp = null;
+
+        for (int i = 0; i < _totalSlot.Count; i++)
         {
             if (!_totalSlot[i].HasFood)
-                return _totalSlot[i];
+            {
+                if (tmp == null)
+                {
+                    tmp = _totalSlot[i];
+                }
+                else
+                {
+                    Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    float x1 = Mathf.Abs(mousePos.x - tmp.transform.position.x);
+                    float x2 = Mathf.Abs(mousePos.x - _totalSlot[i].transform.position.x);
+
+                    if(x2 < x1)
+                        tmp = _totalSlot[i];
+                }
+            }
         }
 
-        return null;
+        return tmp;
     }
 
     private bool HasGrillEmpty()
@@ -103,48 +125,69 @@ public class GrillStation : MonoBehaviour
 
     public void OnCheckMerge()
     {
-        if(this.GetSlotNull() == null) // kiem tra xem so luong slot du 3 item chua, neu chua du thi no == null
+        if (this.GetSlotNull() == null) // kiem tra xem so luong slot du 3 item chua, neu chua du thi no == null
         {
             if (this.CanMerge())
             {
                 Debug.Log("Complete Grill");
 
-                for (int i = 0; i < _totalSlot.Count; i++)
-                {
-                    _totalSlot[i].OnActiveFood(false);
-                }
+                StartCoroutine(IEMerge());
 
-                this.OnPrepareTray();
+                this.OnPrepareTray(false);
                 GameManagers.Instance?.OnMinusFood();
+            }
+        }
+
+        IEnumerator IEMerge()
+        {
+            for (int i = 0; i < _totalSlot.Count; i++)
+            {
+                _totalSlot[i].OnFadeOut();
+                yield return new WaitForSeconds(0.1f);
             }
         }
     }
 
     public void OnCheckPrepareTray()
     {
-        if(this.HasGrillEmpty())
+        if (this.HasGrillEmpty())
         {
-            this.OnPrepareTray();
+            this.OnPrepareTray(true);
         }
     }
 
-    private void OnPrepareTray()
+    private void OnPrepareTray(bool isNow)
     {
-        if (_stackTrays.Count > 0)
+        StartCoroutine(IEPrepare());
+
+        IEnumerator IEPrepare()
         {
-            Trayitem item = _stackTrays.Pop();
+            if(!isNow)
+                yield return new WaitForSeconds(0.95f);
 
-            for (int i = 0; i < item.FoodList.Count; i++)
+            if (_stackTrays.Count > 0)
             {
-                Image img = item.FoodList[i];
-                if (img.gameObject.activeInHierarchy)
-                {
-                    _totalSlot[i].OnPrepareItem(img);
-                    img.gameObject.SetActive(false);
-                }
-            }
+                Trayitem item = _stackTrays.Pop();
 
-            item.gameObject.SetActive(false);
+                for (int i = 0; i < item.FoodList.Count; i++)
+                {
+                    Image img = item.FoodList[i];
+                    if (img.gameObject.activeInHierarchy)
+                    {
+                        _totalSlot[i].OnPrepareItem(img);
+                        img.gameObject.SetActive(false);
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                }
+
+                CanvasGroup canvas = item.GetComponent<CanvasGroup>();
+                canvas.DOFade(0f, 0.5f).OnComplete(() =>
+                {
+                    item.gameObject.SetActive(false);
+                    canvas.alpha = 1f;
+                });
+                
+            }
         }
     }
 
@@ -154,7 +197,7 @@ public class GrillStation : MonoBehaviour
 
         for (int i = 1; i < _totalSlot.Count; i++)
         {
-            if ( _totalSlot[i].GetSpriteFood.name != name)
+            if (_totalSlot[i].GetSpriteFood.name != name)
                 return false;
         }
 

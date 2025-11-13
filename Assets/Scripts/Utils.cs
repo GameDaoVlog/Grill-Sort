@@ -23,7 +23,7 @@ public class Utils
         List<T> result = new List<T>(); // khoi tao list de tra ve
         n = Mathf.Min(n, source.Count); // check de ddam bao so luong lay ve khong vuot qua so luong list co san
 
-        for(int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++)
         {
             int ranIndex = Random.Range(0, source.Count);
             result.Add(source[ranIndex]);
