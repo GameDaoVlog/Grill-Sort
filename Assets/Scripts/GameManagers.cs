@@ -43,7 +43,6 @@ public class GameManagers : MonoBehaviour
                 useFood.Add(takeFood[n]);
         }
 
-
         _avgTray = Random.Range(1.4f, 2f);
         int totalTray = Mathf.RoundToInt(useFood.Count / _avgTray);// tinh tong so dia
 
@@ -59,6 +58,7 @@ public class GameManagers : MonoBehaviour
             {
                 List<Sprite> lisFood = Utils.TakeAndRemoveRandom<Sprite>(useFood, foodPerGrill[i]);
                 _listGrills[i].OnInitGrill(trayPerGrill[i], lisFood);
+                
             }
         }
 

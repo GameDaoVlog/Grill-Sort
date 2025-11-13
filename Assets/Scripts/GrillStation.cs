@@ -46,9 +46,8 @@ public class GrillStation : MonoBehaviour
             if (listFood.Count > 0)
             {
                 remainFood.Add(new List<Sprite>());
-                int n = Random.Range(0, listFood.Count);
-                remainFood[i].Add(listFood[n]);
-                listFood.RemoveAt(n);
+                remainFood[i].Add(listFood[0]);
+                listFood.RemoveAt(0);
             }
         }
 
@@ -57,9 +56,8 @@ public class GrillStation : MonoBehaviour
             int rans = Random.Range(0, remainFood.Count);
             if (remainFood[rans].Count < 4)
             {
-                int n = Random.Range(0, listFood.Count);
-                remainFood[rans].Add(listFood[n]);
-                listFood.RemoveAt(n);
+                remainFood[rans].Add(listFood[0]);
+                listFood.RemoveAt(0);
             }
         }
 
@@ -75,6 +73,7 @@ public class GrillStation : MonoBehaviour
                 _stackTrays.Push(item);
             }
         }
+
     }
 
     private FoodSlot RandomSlot()
